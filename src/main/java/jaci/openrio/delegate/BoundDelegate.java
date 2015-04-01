@@ -48,7 +48,7 @@ public class BoundDelegate {
      * Return a Vector of every socket used by this delegate. Each socket should be dealt with individually
      */
     public Vector<Socket> getConnectedSockets() {
-        return sockets;
+        return (Vector<Socket>) sockets.clone();
     }
 
 }
