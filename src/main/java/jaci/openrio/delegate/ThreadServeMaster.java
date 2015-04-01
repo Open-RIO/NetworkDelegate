@@ -5,6 +5,13 @@ import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+/**
+ * The Thread Responsible for Serving a Client connected to the Main Thread.
+ * This includes reading and writing to the socket concurrently to serve the Client
+ * with their response
+ *
+ * @author Jaci
+ */
 public class ThreadServeMaster extends Thread {
 
     Socket client;
@@ -13,6 +20,7 @@ public class ThreadServeMaster extends Thread {
     public ThreadServeMaster(Socket client, DelegateServer server) {
         this.client = client;
         this.server = server;
+        this.setName("Delegate|Master:Server Thread");
     }
 
     @Override
