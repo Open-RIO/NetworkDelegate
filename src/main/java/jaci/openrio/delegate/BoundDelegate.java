@@ -14,10 +14,15 @@ public class BoundDelegate {
 
     String delegateID;
     Vector<Socket> sockets;
+    ConnectionCallback callback;
 
     protected BoundDelegate(String delegateID) {
         this.delegateID = delegateID;
         this.sockets = new Vector<>();
+    }
+
+    public void callback(ConnectionCallback callback) {
+        this.callback = callback;
     }
 
     /**
@@ -34,6 +39,8 @@ public class BoundDelegate {
      */
     public void bindClient(Socket socket) {
         sockets.add(socket);
+        if (callback != null)
+            callback.onClientConnect(socket, this);
     }
 
     /**
@@ -49,6 +56,24 @@ public class BoundDelegate {
      */
     public Vector<Socket> getConnectedSockets() {
         return (Vector<Socket>) sockets.clone();
+    }
+
+    /**
+     * An interface used for when a Client connects to a BoundDelegate.
+     *
+     * @author Jaci
+     */
+    public static interface ConnectionCallback {
+
+        /**
+         * Called when a Client connects to a BoundDelegate. This allows for easy detection of
+         * connections to a delegate.
+         *
+         * @param clientSocket The socket of the Client
+         * @param delegate The Delegate this callback is triggered on.
+         */
+        public void onClientConnect(Socket clientSocket, BoundDelegate delegate);
+
     }
 
 }

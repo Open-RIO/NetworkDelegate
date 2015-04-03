@@ -2,3 +2,5 @@
 *.iml
 *.iws
 *.ipr
+build/
+src/main/test/

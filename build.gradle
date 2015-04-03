@@ -1,8 +1,70 @@
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'maven'
+
+def maven = true
+
+try {
+  ext.mavenProps = file "../maven.properties"
+  mavenProps.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    project.ext.mavenProps = new ConfigSlurper().parse prop
+  }
+} catch (Exception e) {
+  println "Could not load Maven Properties... You are not a developer!"
+  maven = false
+}
+
+ext.settings = file "build.settings"
+settings.withReader {
+  def prop = new Properties()
+  prop.load(it)
+  project.ext.settings = new ConfigSlurper().parse prop
+}
+
+archivesBaseName = "NetworkDelegate"
+version = settings.delegate.version
+group = "jaci.openrio.delegate"
+
+configurations {
+    deployerJars
+}
+
+task src(type: Jar) {
+  classifier = 'sources'
+  from sourceSets.main.allSource
+}
+
+artifacts {
+  archives src
+}
 
 repositories {
     mavenCentral()
 }
 dependencies {
+  deployerJars 'org.apache.maven.wagon:wagon-ssh:2.2'
+}
+
+uploadArchives {
+  if (maven) {
+    repositories.mavenDeployer {
+      configuration = configurations.deployerJars
+      repository(url: mavenProps.jaci.url) {
+        authentication(userName: mavenProps.jaci.user, password: mavenProps.jaci.auth)
+      }
+
+      pom {
+        groupId = project.group
+              version = project.version
+              artifactId = project.archivesBaseName
+              project {
+                  name project.archivesBaseName
+                  packaging 'jar'
+                  description 'Network Delegates '
+              }
+      }
+    }
+  }
 }
