@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -175,17 +174,29 @@ public class DelegateServer {
                     if (cid.targetPort == socket.getLocalPort()) {
                         BoundDelegate delegate = getDelegate(cid.delegateID);
                         if (delegate != null) {
-                            delegate.bindClient(socket);
-                            output.write("SUCCESS\n".getBytes());
+                            if (delegate.prebind(socket, output))
+                                connectClient(delegate, socket, output);
+                            else
+                                error(output, socket, "ERROR: Wrong Password");
                         }
                     } else
-                        output.write("ERROR: Wrong Port.\n".getBytes());
+                        error(output, socket, "ERROR: Wrong Port");
                     valid = true;
                 }
             }
             if (!valid)
-                output.write("ERROR: Invalid Client Hash.\n".getBytes());
+                error(output, socket, "ERROR: Invalid Client Hash");
         } else
-            output.write("ERROR: Invalid Request.\n".getBytes());
+            error(output, socket, "ERROR: Invalid Request");
+    }
+
+    void error(OutputStream out, Socket socket, String message) throws IOException {
+        out.write((message + "\n").getBytes());
+        socket.close();
+    }
+
+    void connectClient(BoundDelegate delegate, Socket socket, OutputStream output) throws IOException {
+        delegate.bindClient(socket);
+        output.write("SUCCESS\n".getBytes());
     }
 }

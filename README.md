@@ -15,6 +15,7 @@ The Network Delegate library is extremely simple to setup. To setup a new Delega
 ###Server
 - Create a new DelegateServer: ```DelegateServer server = new DelegateServer(masterPort, slavePort1, slavePort2...)``` OR ```DelegateServer server = DelegateServer.createRange(masterPort, startPort, endPort)```
 - Assign your Delegates: ```BoundDelegate delegate = server.requestDelegate(delegateID)```
+- Add a password to your delegate (optional): ```delegate.setPassword("mypassword")```
 - Launch the DelegateServer: ```server.launchDelegate()```
 
 In order to handle the data going to and from your BoundDelegate, call ```BoundDelegate.getConnectedSockets()```  
@@ -22,6 +23,7 @@ This will return a Vector of all the Clients connected to your delegate. You can
 
 ###Client  
 - Create a new DelegateClient: ```DelegateClient client = new DelegateClient(serverHost, serverMasterPort, delegateID)```
+- Set the client password (optional): ```client.setPassword("mypassword")```
 - Launch the DelegateClient using: ```client.connect()```
 
 In order to handle the data going to and from your DelegateClient, call ```DelegateClient.getSocket()``` to gain access to the socket itself. This allows you to use the Client just as if it were a regular socket.  
@@ -38,4 +40,5 @@ If you wish to not use DelegateClient, below is a list of instructions on how to
 4) Disconnect from the Master Socket.  
 5) Connect to the server on the port specified in step 3  
 6) Send "TUNNEL [uuid]" to the server, where uuid is the uuid received in step 3  
+8) The server may send back 'VERIFY'. This means the delegate on the server requires a password. The password should be sent back in a hashed form, using one of the following algorithms: (SHA-1, SHA-256 or MD5). The server specifies the algorithm, but does not tell the client. By default, it is SHA-256, unless otherwise stated by the server.  
 7) If all is well, the server will send back "SUCCESS". You can now use the socket normally. If not, the server will send back an error message.

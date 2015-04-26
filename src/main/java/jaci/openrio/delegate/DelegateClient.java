@@ -28,6 +28,8 @@ public class DelegateClient {
     int allocatedPort;
     String clientUUID;
 
+    Security.Password password;
+
     /**
      * Create a new Delegate Client
      * @param hostname The hostname of the Delegate Server
@@ -40,6 +42,26 @@ public class DelegateClient {
         this.hostname = hostname;
         this.masterPort = masterPort;
         this.delegate = delegateID.replace(" ", "-");
+    }
+
+    /**
+     * Set a password for the Delegate to send to the server if it requires a password.
+     *
+     * NOTE: This is a very, very basic form of password encryption. Do not trust this in large projects, this is for
+     * simple projects that need a way to confirm the connection is the one it wants. It's more of an Identification
+     * system, ensuring the user at the other end is correct, rather than a password-secure lock and key. Similarly,
+     * this method is vulnerable to 'reflection'. You shouldn't be using Java for things where security is of the utmost
+     * importance.
+     */
+    public void setPassword(String password, Security.HashType algorithm) {
+        this.password = new Security.Password(password, algorithm);
+    }
+
+    /**
+     * Shortcut to the {@link #setPassword(String, Security.HashType)} method, using SHA-256 as the algorithm.
+     */
+    public void setPassword(String password) {
+        this.setPassword(password, Security.HashType.SHA256);
     }
 
     /**
@@ -70,6 +92,13 @@ public class DelegateClient {
 
         output.writeBytes("TUNNEL " + clientUUID + "\n");
         String res = reader.readLine();
+        if (res.equals("VERIFY")) {
+            if (password == null)
+                throw new IOException("Password Required to Connect to Delegate");
+            output.writeInt(password.hash.length);
+            output.write(password.hash);
+            res = reader.readLine();
+        }
         if (!res.equals("SUCCESS"))
             throw new IOException("Delegate Slave Connection Error: " + res);
         reader = null;
