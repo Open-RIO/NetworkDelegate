@@ -49,6 +49,14 @@ public class Security {
             return id;
         }
 
+        public static HashType match(String id) {
+            for (HashType type : HashType.values()) {
+                if (type.name().equals(id) || type.getHashID().equals(id))
+                    return type;
+            }
+            return null;
+        }
+
         public byte[] hash(String input) {
             digest.reset();
             byte[] s = digest.digest(input.getBytes());
