@@ -54,8 +54,8 @@ public class DelegateServer {
     public DelegateServer(int master, int... slaves) {
         this.masterPort = master;
         this.slavePorts = slaves;
-        delegates = new Vector<>();
-        clientHash = new Vector<>();
+        delegates = new Vector<BoundDelegate>();
+        clientHash = new Vector<ClientID>();
     }
 
     /**
@@ -196,7 +196,7 @@ public class DelegateServer {
     }
 
     void connectClient(BoundDelegate delegate, Socket socket, OutputStream output) throws IOException {
-        delegate.bindClient(socket);
         output.write("SUCCESS\n".getBytes());
+        delegate.bindClient(socket);
     }
 }

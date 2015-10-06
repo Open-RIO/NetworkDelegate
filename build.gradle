@@ -23,6 +23,8 @@ settings.withReader {
   project.ext.settings = new ConfigSlurper().parse prop
 }
 
+sourceCompatibility = 1.6
+
 archivesBaseName = "NetworkDelegate"
 version = settings.delegate.version
 group = "jaci.openrio.delegate"

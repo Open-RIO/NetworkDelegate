@@ -23,7 +23,7 @@ public class BoundDelegate {
 
     protected BoundDelegate(String delegateID) {
         this.delegateID = delegateID;
-        this.sockets = new Vector<>();
+        this.sockets = new Vector<Socket>();
     }
 
     public void callback(ConnectionCallback callback) {
